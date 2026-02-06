@@ -16,10 +16,21 @@ router.post("/upload/:eventId", auth, uploadSingle, (req, res) => {
   const type = file.mimetype.startsWith("video") ? "video" : "image";
   const filePath = `/uploads/${type}s/${file.filename}`;
 
-  const query =
-    "INSERT INTO media (event_id, type, file_path, status) VALUES (?, ?, ?, 'active')";
+  const isCover = req.query.cover === "true" ? 1 : 0;
 
-  db.query(query, [eventId, type, filePath], (err) => {
+ if (isCover) {
+  db.query(
+    "UPDATE media SET is_cover = 0 WHERE event_id = ? AND is_cover = 1",
+    [eventId]
+  );
+}
+
+
+const query =
+  "INSERT INTO media (event_id, type, file_path, is_cover, status) VALUES (?, ?, ?, ?, 'active')";
+
+
+  db.query(query, [eventId, type, filePath,isCover], (err) => {
     if (err) {
       return res.status(500).json({ message: "Media save failed" });
     }

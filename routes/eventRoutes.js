@@ -8,9 +8,29 @@ const auth = require("../middleware/auth");
    GET /api/events
 --------------------------------------------------- */
 router.get("/", (req, res) => {
-  const query =
-    "SELECT id, name, slug FROM events WHERE status = 1 ORDER BY id DESC";
+ const query = `
+ SELECT 
+  e.id,
+  e.name,
+  e.slug,
+  COALESCE(
+    cover.file_path,
+    gallery.file_path
+  ) AS cover_image
+FROM events e
+LEFT JOIN media cover
+  ON cover.event_id = e.id
+  AND cover.is_cover = 1
+  AND cover.status = 'active'
+LEFT JOIN media gallery
+  ON gallery.event_id = e.id
+  AND gallery.type = 'image'
+  AND gallery.status = 'active'
+WHERE e.status = 1
+GROUP BY e.id
+ORDER BY e.id DESC
 
+`;
   db.query(query, (err, results) => {
     if (err) {
       return res.status(500).json({
