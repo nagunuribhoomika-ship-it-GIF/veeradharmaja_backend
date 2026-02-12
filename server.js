@@ -6,6 +6,7 @@ require("dotenv").config();
 const adminRoutes = require("./routes/adminRoutes");
 const eventRoutes = require("./routes/eventRoutes");
 const mediaRoutes = require("./routes/mediaRoutes");
+const serviceRoutes= require("./routes/serviceRoutes")
 
 const app = express();
 
@@ -20,7 +21,11 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/api/admin", adminRoutes);
 app.use("/api/events", eventRoutes);
 app.use("/api/media", mediaRoutes);
-
+app.use("/api", serviceRoutes);
+app.use(
+  "/images",
+  express.static(path.join(__dirname, "public/images"))
+);
 app.get("/", (req, res) => {
   res.send("Backend is running 🚀");
 });
