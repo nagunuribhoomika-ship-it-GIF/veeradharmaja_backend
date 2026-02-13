@@ -6,7 +6,10 @@ require("dotenv").config();
 const adminRoutes = require("./routes/adminRoutes");
 const eventRoutes = require("./routes/eventRoutes");
 const mediaRoutes = require("./routes/mediaRoutes");
-const serviceRoutes= require("./routes/serviceRoutes")
+const serviceRoutes= require("./routes/serviceRoutes");
+const contactRoutes = require("./routes/contactRoutes");
+const adminEnquiryRoutes = require("./routes/adminEnquiryRoutes");
+
 
 const app = express();
 
@@ -22,6 +25,8 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/events", eventRoutes);
 app.use("/api/media", mediaRoutes);
 app.use("/api", serviceRoutes);
+app.use("/api", contactRoutes);
+app.use("/api", adminEnquiryRoutes);
 app.use(
   "/images",
   express.static(path.join(__dirname, "public/images"))
