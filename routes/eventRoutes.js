@@ -79,6 +79,54 @@ router.post("/", auth, (req, res) => {
 });
 
 /* ---------------------------------------------------
+   ADMIN: Update event name
+   PUT /api/events/:id
+--------------------------------------------------- */
+router.put("/:id", auth, (req, res) => {
+  const { id } = req.params;
+  const { name } = req.body;
+
+  if (!name || !name.trim()) {
+    return res.status(400).json({
+      message: "Event name is required"
+    });
+  }
+
+  const cleanName = name.trim();
+  const slug = cleanName
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+
+  const query =
+    "UPDATE events SET name = ?, slug = ? WHERE id = ? AND status = 1";
+
+  db.query(query, [cleanName, slug, id], (err, result) => {
+    if (err) {
+      const isDuplicateSlug = err.code === "ER_DUP_ENTRY";
+
+      return res.status(isDuplicateSlug ? 409 : 500).json({
+        message: isDuplicateSlug
+          ? "Another event already uses this name"
+          : "Failed to update event"
+      });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({
+        message: "Event not found"
+      });
+    }
+
+    res.json({
+      id: Number(id),
+      name: cleanName,
+      slug
+    });
+  });
+});
+
+/* ---------------------------------------------------
    PUBLIC: Get event by slug
    GET /api/events/slug/:slug
 --------------------------------------------------- */
