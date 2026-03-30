@@ -7,15 +7,12 @@ const db = require("../config/db");
 /* Upload media and link to event */
 router.post("/upload/:eventId", auth, uploadSingle, (req, res) => {
   const { eventId } = req.params;
-  const file = req.file;
+ if (!req.cloudinaryUrl) {
+  return res.status(400).json({ message: "Upload failed" });
+}
 
-  if (!file) {
-    return res.status(400).json({ message: "No file uploaded" });
-  }
-
-  const type = file.mimetype.startsWith("video") ? "video" : "image";
-  const filePath = `/uploads/${type}s/${file.filename}`;
-
+const type = req.mediaType === "video" ? "video" : "image";
+const filePath = req.cloudinaryUrl; // ✅ Cloudinary URL
   const isCover = req.query.cover === "true" ? 1 : 0;
 
  if (isCover) {
